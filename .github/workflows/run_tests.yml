@@ -44,7 +44,7 @@ jobs:
               run: |
                 mkdir build
                 cd build
-                cmake -DMACHINE=${{matrix.machine}} -DVGA=${{matrix.vga_mode}} -DCMAKE_BUILD_TYPE=Debug -DUSE_CLANG=ON ..
+                cmake -DMACHINE=${{matrix.machine}} -DVGA=${{matrix.vga_mode}} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/mellos-clang.cmake ..
                 make    
             
             - name: Run
