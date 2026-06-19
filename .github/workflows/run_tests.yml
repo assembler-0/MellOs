@@ -42,8 +42,8 @@ jobs:
 
             - name: Deps
               run: |
-                apt-get update 
-                apt-get install -y --no-install-recommends lld binutils
+                pacman -Syu update 
+                pacman -S --needed lld binutils
 
             - name: Build MellOS
               run: |
