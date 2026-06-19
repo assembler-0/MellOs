@@ -42,9 +42,8 @@ jobs:
 
             - name: Deps
               run: |
-                pacman -Syu --noconfirm
-                pacman -S --needed lld binutils
-
+                pacman -S --needed lld --noconfirm
+                
             - name: Build MellOS
               run: |
                 mkdir build
