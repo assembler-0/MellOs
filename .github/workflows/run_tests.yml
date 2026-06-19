@@ -42,7 +42,7 @@ jobs:
 
             - name: Deps
               run: |
-                pacman -Syu
+                pacman -Syu --noconfirm
                 pacman -S --needed lld binutils
 
             - name: Build MellOS
