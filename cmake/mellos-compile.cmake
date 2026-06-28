@@ -25,7 +25,6 @@ target_compile_options(kernel.elf PRIVATE
     $<$<COMPILE_LANGUAGE:ASM_NASM>:
         -w+regsize
     >
-    $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-DMELLOS_DEBUG>
 )
 
 target_link_options(kernel.elf PRIVATE
@@ -40,7 +39,12 @@ target_link_options(kernel.elf PRIVATE
 
 target_compile_definitions(kernel.elf PRIVATE
     ${CMMON_DEFS}
-    ${NASM_DEFS}
+    $<$<CONFIG:Debug>:
+        DMELLOS_DEBUG
+    >
+    $<$<BOOL:${DISABLE_SSE}>:
+        DISABLE_SSE
+    >
 )
 
 target_include_directories(kernel.elf PRIVATE SYSTEM

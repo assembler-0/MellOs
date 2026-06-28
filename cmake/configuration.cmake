@@ -33,20 +33,13 @@ set(ADDITIONAL_QEMU_FLAGS "" CACHE STRING "Additional flags to pass to QEMU when
 #endif ()
 
 # Build flags similar to Makefile
-set(COMMON_DEFS VGA_${VGA} HRES=${HRES} VRES=${VRES} BPP=${BPP} WINDOW_DRAG_${WINDOW_DRAG})
-set(NASM_DEFS
-    ${VGA}
-    HRES=${HRES}
-    VRES=${VRES}
-    BPP=${BPP}
-)
+set(COMMON_DEFS ${VGA} VGA_${VGA} HRES=${HRES} VRES=${VRES} BPP=${BPP} WINDOW_DRAG_${WINDOW_DRAG})
 if (MACHINE STREQUAL "PRESARIO")
-    list(APPEND COMMON_DEFS_WITH_D "-DDISABLE_SSE")
     set(DISABLE_SSE 1)
     set(TARGET_CPU "486")
 else ()
     set(DISABLE_SSE 0)
-    set(TARGET_CPU "qemu32")
+    set(TARGET_CPU "386") # we defaults to i386 toolchain
 endif()
 #Add audio backend flags to qemu
 if (AUDIO_BACKEND STREQUAL "PULSEAUDIO")
