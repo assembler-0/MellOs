@@ -1,28 +1,32 @@
 # full kernel compilation
 
-set(NASM_DEFS
-        -D${VGA}
-        -DHRES=${HRES}
-        -DVRES=${VRES}
-        -DBPP=${BPP}
-)
-
-set(NASM_INCS)
-foreach(d ${INC_DIRS})
-    list(APPEND NASM_INCS -I${d}/)
-endforeach()
-
-add_executable(kernel.elf ${C_SOURCES} ${ASM_SOURCES})
+add_executable(kernel.elf ${KERNEL_C_SRCS} ${KERNEL_ASM_SRCS})
 set_target_properties(kernel.elf PROPERTIES OUTPUT_NAME kernel)
 
-# Apply NASM flags correctly as a list (each arg stays its own token)
-foreach(asm ${ASM_SOURCES})
-    set_source_files_properties(${asm} PROPERTIES
-        COMPILE_OPTIONS "${NASM_DEFS};${NASM_INCS};-w+regsize"
-    )
-endforeach()
+set(LDSCRIPT "${CMAKE_SOURCE_DIR}/kernel/kernel.ld")
 
-get_filename_component(LDSCRIPT "${CMAKE_SOURCE_DIR}/kernel/kernel.ld" ABSOLUTE)
+target_compile_options(kernel.elf PRIVATE
+    $<$<COMPILE_LANGUAGE:C>:
+        -fno-builtin
+        -fno-pic
+        -Wall
+        -Wno-parentheses
+        -Wno-incompatible-pointer-types
+        -Wno-missing-braces
+        -ffreestanding
+        -Werror=implicit-function-declaration
+        -Werror=return-type
+        -O${OPT_LEVEL}
+        -g${DSYM_LEVEL}
+        -m32
+        -march=${MARCH_MODE}
+        -mtune=${MARCH_MODE}
+    >
+    $<$<COMPILE_LANGUAGE:ASM_NASM>:
+        -w+regsize
+    >
+    $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-DMELLOS_DEBUG>
+)
 
 target_link_options(kernel.elf PRIVATE
     -T ${LDSCRIPT}
@@ -30,35 +34,45 @@ target_link_options(kernel.elf PRIVATE
     -static
     --no-dynamic-linker
     -ztext
-    --no-pie -g
+    --no-pie
     -m${TARGET_EMULATION_MODE}
 )
+
+target_compile_definitions(kernel.elf PRIVATE
+    ${CMMON_DEFS}
+    ${NASM_DEFS}
+)
+
+target_include_directories(kernel.elf PRIVATE SYSTEM
+    ${INC_DIRS}
+)
+
+if (CONFIG_SSP)
+    target_compile_options(kernel.elf PRIVATE
+        $<$<COMPILE_LANGUAGE:C>:
+            -fstack-protector-strong
+        >
+    )
+endif()
+
+if (NOT DISABLE_SSE)
+    target_compile_options(kernel.elf PRIVATE
+        $<$<COMPILE_LANGUAGE:C>:
+            -msse
+        >
+    )
+endif()
+
+if (COMPILER_ID STREQUAL "clang")
+    target_compile_options(kernel.elf PRIVATE
+        $<$<COMPILE_LANGUAGE:C>:
+            --target=${COMMON_TARGET_TRIPLE}
+        >
+    )
+endif()
 
 if (COMPILER_ID STREQUAL "gcc")
     target_link_options(kernel.elf PRIVATE
         --no-warn-rwx-segments
     )
 endif()
-
-# Freestanding kernel style build
-# add '-DCMAKE_BUILD_TYPE=Debug' to your arguments for debug build
-target_compile_options(kernel.elf PRIVATE
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Og>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-g>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<CONFIG:Debug>>>:-O${OPT_LEVEL}>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<BOOL:${USE_CLANG}>>>:-m32>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:${DISABLE_SSE}>>:-msse>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${CONFIG_SSP}>>:-fstack-protector-strong>
-        $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-DMELLOS_DEBUG>
-        $<$<COMPILE_LANGUAGE:C>:-fno-builtin
-            -fno-pic
-            -Wall
-            -Wno-parentheses
-            -Wno-incompatible-pointer-types
-            -Wno-missing-braces
-            -ffreestanding
-            -Werror=implicit-function-declaration
-            -Werror=return-type
-            ${COMMON_DEFS_WITH_D}
-        >
-)

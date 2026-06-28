@@ -8,6 +8,10 @@ if (NOT DEFINED DSYM_LEVEL)
     set(DSYM_LEVEL "0" CACHE STRING "Debug symbol level (0, 1, 2, 3)")
 endif()
 
+if (NOT DEFINED MARCH_MODE)
+    set(MARCH_MODE "pentium" CACHE STRING "Argument for -march= and -mtune=")
+endif()
+
 option(CONFIG_SSP "Enable ssp for kernel" ON)
 
 set(MACHINE "OTHER" CACHE STRING "Machine target for the build. PRESARIO or OTHER")
@@ -19,6 +23,7 @@ set(WINDOW_DRAG, "NORMAL" STRING "NORMAL or BOX")
 set(LDSCRIPT, "${CMAKE_SOURCE_DIR}/kernel/kernel.ld" CACHE STRING "Link script")
 set(AUDIO_BACKEND "NONE" CACHE STRING "Audio backend to use: NONE or PULSEAUDIO")
 set(ADDITIONAL_QEMU_FLAGS "" CACHE STRING "Additional flags to pass to QEMU when running")
+
 #if (VGA STREQUAL "VESA")
 #    add_compile_definitions(VGA_VESA)
 #endif ()
@@ -27,18 +32,14 @@ set(ADDITIONAL_QEMU_FLAGS "" CACHE STRING "Additional flags to pass to QEMU when
 #    add_compile_definitions(BOX_WINDOW_DRAG)
 #endif ()
 
-# Output directory compatible with Makefile
-set(OUT_BIN_DIR "${CMAKE_BINARY_DIR}/wee_bins")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUT_BIN_DIR}")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUT_BIN_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUT_BIN_DIR}")
-
 # Build flags similar to Makefile
 set(COMMON_DEFS VGA_${VGA} HRES=${HRES} VRES=${VRES} BPP=${BPP} WINDOW_DRAG_${WINDOW_DRAG})
-set(COMMON_DEFS_WITH_D)
-foreach (def ${COMMON_DEFS})
-    list(APPEND COMMON_DEFS_WITH_D "-D${def}")
-endforeach ()
+set(NASM_DEFS
+    ${VGA}
+    HRES=${HRES}
+    VRES=${VRES}
+    BPP=${BPP}
+)
 if (MACHINE STREQUAL "PRESARIO")
     list(APPEND COMMON_DEFS_WITH_D "-DDISABLE_SSE")
     set(DISABLE_SSE 1)
@@ -54,5 +55,3 @@ if (AUDIO_BACKEND STREQUAL "PULSEAUDIO")
 endif()
 list(REMOVE_DUPLICATES COMMON_DEFS_WITH_D)
 
-
-#add_compile_definitions(${COMMON_DEFS})

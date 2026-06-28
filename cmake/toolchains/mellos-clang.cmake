@@ -8,8 +8,6 @@
 # Software Foundation, either version 3 of the License, or (at your option) 
 # any later version.
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR i386)
 
 if (NOT DEFINED ENV{CLANG_VERSION})
     set(CMAKE_C_COMPILER clang)
@@ -23,10 +21,6 @@ else()
 endif()
 
 set(CMAKE_ASM_NASM_COMPILER nasm)
-set(CMAKE_ASM_NASM_OBJECT_FORMAT elf)
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_LINKER> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_LINKER> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
-set(CMAKE_ASM_LINK_EXECUTABLE "<CMAKE_LINKER> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 set(CMAKE_LINKER ld.lld)
 set(CMAKE_AR llvm-ar)
 set(CMAKE_RANLIB llvm-ranlib)
@@ -36,23 +30,7 @@ set(MOS_CXXFILT llvm-cxxfilt)
 set(MOS_HOST_CC clang)
 
 set(COMPILER_ID "clang")
+set(MARCH_MODE "pentium")
 
-if (NOT DEFINED TARGET_EMULATION_MODE)
-    set(TARGET_EMULATION_MODE "elf_i386" CACHE STRING "Target emulation mode when linking")
-endif()
-
-if (NOT DEFINED COMMON_TARGET_TRIPLE)
-    set(COMMON_TARGET_TRIPLE "i386-unknown-none-elf" CACHE STRING "Target triple")
-endif()
-
-if (NOT DEFINED MARCH_MODE)
-    set(MARCH_MODE "pentium" CACHE STRING "Argument for -march= and -mtune=")
-endif()
-
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
-
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+set(OPT_LEVEL "2" CACHE STRING "Optimization level (0, 1, 2, 3, s, z)")
+set(DSYM_LEVEL "0" CACHE STRING "Debug symbol level (0, 1, 2, 3)")

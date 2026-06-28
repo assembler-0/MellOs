@@ -11,6 +11,9 @@
 find_program(CCACHE_PROGRAM ccache)
 find_program(QEMU_SYS qemu-system-i386)
 
+# Grub comes in different names across distros, for example:
+# Fedora is grub2-*
+# Brew is i686-elf-grub-* (legacy BIOS)
 find_program(GRUB_MKRESCUE
     NAMES
         grub-mkrescue

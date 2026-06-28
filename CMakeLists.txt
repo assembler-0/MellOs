@@ -9,10 +9,10 @@
 # any later version.
 
 cmake_minimum_required(VERSION 3.0...3.10)
-
+include(cmake/meta.cmake)
 project(MellOs
- LANGUAGES C ASM_NASM
- HOMEPAGE_URL "https://github.com/mell-o-tron/MellOs"
+	LANGUAGES C ASM_NASM
+	HOMEPAGE_URL "https://github.com/mell-o-tron/MellOs"
 )
 enable_language(ASM_NASM)
 
@@ -31,4 +31,3 @@ include(standard)   	      # C Standards
 include(sources)        	  # Core kernel sources
 include(mellos-compile)       # Full kernel compilation
 include(run)       		      # Run targets (mostly post-build targets)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
