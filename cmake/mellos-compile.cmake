@@ -42,9 +42,6 @@ target_compile_definitions(kernel.elf PRIVATE
     $<$<CONFIG:Debug>:
         DMELLOS_DEBUG
     >
-    $<$<BOOL:${DISABLE_SSE}>:
-        DISABLE_SSE
-    >
 )
 
 target_include_directories(kernel.elf PRIVATE SYSTEM
